@@ -1,5 +1,6 @@
 package java.domain;
 
-public class PlayerState {
+public class Player {
+    private Long id;
     private Card[][] playField;
 }
