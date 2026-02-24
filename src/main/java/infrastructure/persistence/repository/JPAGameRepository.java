@@ -36,7 +36,6 @@ public class JPAGameRepository implements GameRepository{
         GameEntity game = GameEntity.findById(gameId);
         GameStateEntity gameStateEntity = new GameStateEntity(game, jsonObject.toString());
         gameStateEntity.persist();
-        return;
     }
 
     @Override
