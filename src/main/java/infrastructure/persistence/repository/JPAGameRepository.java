@@ -1,8 +1,8 @@
-package infrastructure.persistence.repository;
+package java.infrastructure.persistence.repository;
 
-import infrastructure.persistence.entities.ActionEntity;
-import infrastructure.persistence.entities.GameEntity;
-import infrastructure.persistence.entities.GameStateEntity;
+import java.infrastructure.persistence.entities.ActionEntity;
+import java.infrastructure.persistence.entities.GameEntity;
+import java.infrastructure.persistence.entities.GameStateEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.JsonObject;
 

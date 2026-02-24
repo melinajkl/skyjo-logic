@@ -1,4 +1,4 @@
-package infrastructure.persistence.entities;
+package java.infrastructure.persistence.entities;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
