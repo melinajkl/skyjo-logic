@@ -6,7 +6,7 @@ public class Game {
     private final Long id;
     private final List<Player> players;
     private int currentPlayerIndex;
-    private TurnPhase phase;
+    private Status phase;
     private final Pile drawPile;
     private final Pile discardPile;
     private int round;
@@ -15,7 +15,6 @@ public class Game {
         this.id = id;
         this.players = players;
         this.currentPlayerIndex = 0;
-        this.phase = TurnPhase.MUST_DRAW_OR_TAKE_DISCARD;
         this.drawPile = drawPile;
         this.discardPile = discardPile;
         this.round = 1;
@@ -43,7 +42,7 @@ public class Game {
         return discardPile.draw();
     }
 
-    public void setPhase(TurnPhase phase) {
+    public void setPhase(Status phase) {
         this.phase = phase;
     }
 }

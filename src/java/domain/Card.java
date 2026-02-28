@@ -9,10 +9,19 @@ public class Card {
     }
 
     public int getValue(){
-        return value;
+        if (revealed) {
+            return value;
+        }
+        else {
+            throw new IllegalMoveException("Cant look at unrevealed card");
+        }
     }
 
     public void reveal(){
         revealed = true;
+    }
+
+    public boolean isRevealed() {
+        return revealed;
     }
 }

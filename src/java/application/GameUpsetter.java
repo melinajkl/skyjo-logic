@@ -1,4 +1,4 @@
 package java.application;
 
-public class Ah {
+public class GameUpsetter {
 }

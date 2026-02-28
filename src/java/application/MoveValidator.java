@@ -1,4 +1,4 @@
-package java.domain;
+package java.application;
 
 public class MoveValidator {
 }
