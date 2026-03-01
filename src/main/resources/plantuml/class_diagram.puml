@@ -2,6 +2,7 @@
 'https://plantuml.com/class-diagram
 rectangle domain {
 class Action {
+    - game: Game
     - actionType: ActionType
      - playFieldBefore: PlayField
     - playFieldAfter: PlayField
@@ -9,7 +10,7 @@ class Action {
     - newCardInField: boolean
     - Card: Card
     - player: Player
-    - lastMove
+    - lastMove: boolean
 }
 enum ActionType {
     SETUP
