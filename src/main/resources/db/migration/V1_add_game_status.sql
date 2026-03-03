@@ -1,0 +1,2 @@
+ALTER TABLE game
+ADD COLUMN status VARCHAR(64);

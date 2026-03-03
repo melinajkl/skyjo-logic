@@ -84,12 +84,12 @@ class MoveValidator {
 
 class GameUpsetter {
 'Ich will einen Boolean, wenn alles gut gegangen und fertig erstellt ist >:('
-    + setupGame(List<Player>): boolean
+    + setupGame(List<Player>): Game
 }
 
 interface Calculator {
-    + calculatePointsFromRound(): List<Long>
-    + calculateEndPoints(): List<Long>
+    + calculatePointsFromRound(Game game): List<Long>
+    + calculateEndPoints(Game game): List<Long>
 }
 }
 rectangle infrastructure.persistence {

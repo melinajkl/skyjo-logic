@@ -1,4 +1,4 @@
-package java.domain;
+package domain;
 
 import java.util.Stack;
 

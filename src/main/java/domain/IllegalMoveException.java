@@ -1,4 +1,4 @@
-package java.domain;
+package domain;
 
 public class IllegalMoveException extends RuntimeException {
     public IllegalMoveException(String message) {
