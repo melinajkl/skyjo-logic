@@ -1,0 +1,34 @@
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: appdb
+      MARIADB_USER: app
+      MARIADB_PASSWORD: app_pw
+      MARIADB_ROOT_PASSWORD: root_pw
+    ports:
+      - "3306:3306" # wird benötigt um in der IDE auf die Datenbank zugreifen zu können
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uapp -papp_pw --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 25
+
+  app:
+    build: .
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: appdb
+      DB_USER: app
+      DB_PASS: app_pw
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mariadb_data:

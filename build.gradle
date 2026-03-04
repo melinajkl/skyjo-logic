@@ -1,6 +1,20 @@
+// build.gradle (Groovy)
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        // MariaDB wird in Flyway über das MySQL-Plugin unterstützt
+        classpath "org.flywaydb:flyway-mysql:12.0.1"
+        classpath "org.mariadb.jdbc:mariadb-java-client:3.4.1"
+    }
+}
+
 plugins {
     id 'java'
     id 'io.quarkus'
+    id "org.flywaydb.flyway" version "12.0.1"
 }
 
 repositories {
@@ -11,7 +25,14 @@ repositories {
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-hibernate-orm'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
     testImplementation 'io.quarkus:quarkus-junit'
+
+    // Für deine App zur Laufzeit (Quarkus DB Zugriff)
+    implementation 'io.quarkus:quarkus-jdbc-mariadb'
+    // Optional: Flyway im Quarkus-Startup (wenn du es willst)
+    // implementation 'io.quarkus:quarkus-flyway'
 }
 
 group = 'org.acme'
@@ -29,4 +50,11 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+flyway {
+    url = "jdbc:mariadb://localhost:3306/appdb"
+    user = "app"
+    password = "app_pw"
+    locations = ["filesystem:src/main/resources/db/migration"]
 }
