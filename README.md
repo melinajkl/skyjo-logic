@@ -1,1 +1,1 @@
-# skyjo-logic
+# java.skyjo-logic
