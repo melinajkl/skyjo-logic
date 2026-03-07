@@ -1,9 +1,12 @@
-package java.domain;
+package skyjo.domain;
+
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class PlayField {
     private List<Card> playField;
 
@@ -19,8 +22,8 @@ public class PlayField {
         return oldCard;
     }
 
-    public int calculateSum(){
-        int count = 0;
+    public Long calculateSum(){
+        Long count = 0L;
         for (Card card : playField){
             if(card.isRevealed()){
                 count = count + card.getValue();

@@ -1,4 +1,4 @@
-package java.domain;
+package skyjo.domain;
 
 public enum Status {
     SETUP,

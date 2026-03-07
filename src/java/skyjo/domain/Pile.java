@@ -1,8 +1,13 @@
-package java.domain;
+package skyjo.domain;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Stack;
 
+@Getter
 public class Pile {
+    @Setter
     private Stack<Card> stack;
     private final boolean revealed;
 

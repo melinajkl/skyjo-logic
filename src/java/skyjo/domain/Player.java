@@ -1,7 +1,12 @@
-package java.domain;
+package skyjo.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public class Player {
     private final Long id;
+    @Setter
     private PlayField playField;
     private Long points;
     private boolean lastMoveDone;
@@ -23,13 +28,5 @@ public class Player {
 
     public boolean getLastMoveDone (){
         return this.lastMoveDone;
-    }
-
-    public PlayField getPlayField() {
-        return playField;
-    }
-
-    public void setPlayField(PlayField playField) {
-        this.playField = playField;
     }
 }

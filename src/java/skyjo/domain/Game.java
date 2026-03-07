@@ -1,18 +1,27 @@
-package java.domain;
+package skyjo.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
+@Getter
 public class Game {
-    private final Long id;
+    @Setter
+    private Long id;
     private final List<Player> players;
     private int currentPlayerIndex;
+    @Setter
     private Status phase;
     private final Pile drawPile;
     private final Pile discardPile;
+    @Setter
     private int round;
+    private int moveCounter;
 
-    public Game (Long id, List<Player> players, Pile drawPile, Pile discardPile){
-        this.id = id;
+    public Game (List<Player> players, Pile drawPile, Pile discardPile){
         this.players = players;
         this.currentPlayerIndex = 0;
         this.drawPile = drawPile;
@@ -27,11 +36,11 @@ public class Game {
     public void changeCurrentPlayer(){
         if (currentPlayerIndex == players.size() - 1){
             currentPlayerIndex = 0;
-            round++;
         }
         else {
             currentPlayerIndex++;
         }
+        moveCounter++;
     }
 
     public Card drawFromDrawPile(){
@@ -42,7 +51,11 @@ public class Game {
         return discardPile.draw();
     }
 
-    public void setPhase(Status phase) {
-        this.phase = phase;
+    public void reshufflePiles(){
+        Card topCard = discardPile.draw();
+        Collections.shuffle(discardPile.getStack());
+        drawPile.setStack(discardPile.getStack());
+        discardPile.setStack(new Stack<>());
+        discardPile.layCard(topCard);
     }
 }
