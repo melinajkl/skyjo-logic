@@ -1,14 +1,14 @@
 
 
-import domain.*;
-import infrastructure.persistence.repository.GameJooqRepository;
+import skyjo.domain.*;
+import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import jakarta.inject.Inject;
 
 import java.util.*;
 
-import static domain.Status.SETUP;
+import static skyjo.domain.Status.SETUP;
 
 @QuarkusMain
 public class Main implements QuarkusApplication {

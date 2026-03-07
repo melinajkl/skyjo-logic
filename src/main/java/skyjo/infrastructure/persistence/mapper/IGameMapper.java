@@ -1,7 +1,7 @@
-package infrastructure.persistence.mapper;
+package skyjo.infrastructure.persistence.mapper;
 
-import domain.Card;
-import domain.PlayField;
+import skyjo.domain.Card;
+import skyjo.domain.PlayField;
 
 public interface IGameMapper {
     public String PlayFieldToJson(PlayField playField);

@@ -1,20 +1,17 @@
-package infrastructure.persistence.repository;
+package skyjo.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import domain.Action;
-import domain.Player;
+import skyjo.domain.Action;
+import skyjo.domain.Player;
 import infrastructure.jooq.generated.tables.records.GameRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.jooq.DSLContext;
-import org.jooq.False;
-import org.jooq.Record;
-import org.jooq.types.UByte;
 import org.jooq.types.UInteger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import domain.Game;
+import skyjo.domain.Game;
 import org.jooq.types.ULong;
 
 import java.util.List;

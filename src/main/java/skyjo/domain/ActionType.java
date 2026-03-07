@@ -1,4 +1,4 @@
-package domain;
+package skyjo.domain;
 
 public enum ActionType {
     SETUP,

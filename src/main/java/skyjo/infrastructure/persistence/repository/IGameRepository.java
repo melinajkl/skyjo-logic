@@ -1,10 +1,10 @@
 
-package infrastructure.persistence.repository;
+package skyjo.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import domain.Game;
-import domain.Player;
-import domain.Action;
+import skyjo.domain.Game;
+import skyjo.domain.Player;
+import skyjo.domain.Action;
 
 import java.util.List;
 

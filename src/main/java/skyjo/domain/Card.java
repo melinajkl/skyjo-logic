@@ -1,6 +1,4 @@
-package domain;
-
-import lombok.Getter;
+package skyjo.domain;
 
 public class Card {
     private final int value;

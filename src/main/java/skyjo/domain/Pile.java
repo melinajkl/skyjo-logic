@@ -1,4 +1,4 @@
-package domain;
+package skyjo.domain;
 
 import java.util.Stack;
 

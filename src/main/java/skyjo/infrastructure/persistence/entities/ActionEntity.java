@@ -1,9 +1,9 @@
-package infrastructure.persistence.entities;
+package skyjo.infrastructure.persistence.entities;
 
-import domain.Player;
-import domain.Card;
-import domain.ActionType;
-import domain.PlayField;
+import skyjo.domain.Player;
+import skyjo.domain.Card;
+import skyjo.domain.ActionType;
+import skyjo.domain.PlayField;
 
 public class ActionEntity {
     private GameEntity game;

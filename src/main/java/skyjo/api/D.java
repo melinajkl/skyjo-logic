@@ -1,4 +1,4 @@
-package java.api;
+package skyjo.api;
 
 public class D {
 }

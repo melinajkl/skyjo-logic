@@ -1,4 +1,4 @@
-package infrastructure.persistence.entities;
+package skyjo.infrastructure.persistence.entities;
 
 import java.util.List;
 
