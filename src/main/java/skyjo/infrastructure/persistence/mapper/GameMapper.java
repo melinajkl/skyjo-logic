@@ -1,17 +1,17 @@
 package skyjo.infrastructure.persistence.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import infrastructure.jooq.generated.tables.records.ActionRecord;
 import infrastructure.jooq.generated.tables.records.GameRecord;
 import infrastructure.jooq.generated.tables.records.PlayerRecord;
+import jakarta.enterprise.context.ApplicationScoped;
 import skyjo.domain.*;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
+@ApplicationScoped
 public class GameMapper implements IGameMapper {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final GameJooqRepository repo = new GameJooqRepository();

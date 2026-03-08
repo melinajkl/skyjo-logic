@@ -27,8 +27,10 @@ import static infrastructure.jooq.generated.Tables.*;
 public class GameJooqRepository implements IGameRepository {
     @Inject
     DSLContext dsl;
+
+    @Inject
+    GameMapper gameMapper;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final GameMapper gameMapper = new GameMapper();
 
     @Override
     @Transactional
