@@ -2,7 +2,7 @@ services:
   db:
     image: mariadb:11
     environment:
-      MARIADB_DATABASE: appdb
+      MARIADB_DATABASE: skyjo
       MARIADB_USER: app
       MARIADB_PASSWORD: app_pw
       MARIADB_ROOT_PASSWORD: root_pw
@@ -17,15 +17,17 @@ services:
       retries: 25
 
   app:
-    build: .
+    build:
+      context: /Users/melinaklein/workspace/skyjo-logic
+      dockerfile: Dockerfile
     environment:
       DB_HOST: db
       DB_PORT: "3306"
-      DB_NAME: appdb
+      DB_NAME: skyjo
       DB_USER: app
       DB_PASS: app_pw
     ports:
-      - "8080:8080"
+      - "8000:8080"
     depends_on:
       db:
         condition: service_healthy
