@@ -1,4 +1,4 @@
-package java.skyjo.application;
+package skyjo.application;
 
 import java.skyjo.domain.Action;
 import java.skyjo.domain.ActionType;
