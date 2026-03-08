@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import skyjo.domain.Game;
 import org.jooq.types.ULong;
+import skyjo.infrastructure.persistence.mapper.GameMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class GameJooqRepository implements IGameRepository {
     @Inject
     DSLContext dsl;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final GameMapper gameMapper = new GameMapper();
 
     @Override
     @Transactional
@@ -126,7 +128,7 @@ public class GameJooqRepository implements IGameRepository {
         List<Action> actions = new ArrayList<>();
 
         for (ActionRecord record : records) {
-            Action action = mapToDomain(record); // deine Mapper-Methode
+            Action action = gameMapper.mapToDomain(record); // deine Mapper-Methode
             actions.add(action);
         }
 
