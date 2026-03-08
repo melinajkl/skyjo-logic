@@ -2,6 +2,7 @@ package skyjo.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import infrastructure.jooq.generated.tables.records.ActionRecord;
+import infrastructure.jooq.generated.tables.records.PlayerRecord;
 import skyjo.domain.Action;
 import skyjo.domain.Player;
 import infrastructure.jooq.generated.tables.records.GameRecord;
@@ -18,6 +19,7 @@ import skyjo.infrastructure.persistence.mapper.GameMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static infrastructure.jooq.generated.Tables.*;
 
@@ -44,6 +46,7 @@ public class GameJooqRepository implements IGameRepository {
                 .set(GAME.STATUS, game.getPhase().toString())
                 .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(game.getCurrentPlayer().getId()))
                 .set(GAME.ROUND, UInteger.valueOf(game.getRound()))
+                .set(GAME.SNAPSHOT,  mapper.writeValueAsBytes(game))
                 .returning(GAME.ID).fetchOne();
 
         assert record != null;
@@ -128,7 +131,7 @@ public class GameJooqRepository implements IGameRepository {
         List<Action> actions = new ArrayList<>();
 
         for (ActionRecord record : records) {
-            Action action = gameMapper.mapToDomain(record); // deine Mapper-Methode
+            Action action = gameMapper.toDomain(record); // deine Mapper-Methode
             actions.add(action);
         }
 
@@ -137,21 +140,38 @@ public class GameJooqRepository implements IGameRepository {
 
     @Override
     public Game getGame(Long player_id) {
-        return null;
+        Long game_id = Objects.requireNonNull(dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOne(PLAYER.CURRENT_GAME_ID)).longValue();
+        return getGameById(game_id);
+    }
+
+    @Override
+    public Game getGameById(Long game_id) {
+        GameRecord g = dsl.selectFrom(GAME).where(GAME.ID.eq(ULong.valueOf(game_id))).fetchOneInto(GameRecord.class);
+        assert g != null;
+        return gameMapper.toDomainGame(g);
     }
 
     @Override
     public Player getPlayer(Long player_id) {
-        return null;
+        PlayerRecord p = dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOneInto(PlayerRecord.class);
+        assert p != null;
+        return gameMapper.toDomainPlayer(p);
     }
 
     @Override
     public List<Player> getPlayers(Long game_id) {
-        return List.of();
+        Game g = getGameById(game_id);
+        List<Player> players = new ArrayList<>();
+        for (Player player : g.getPlayers()) {
+            players.add(getPlayer(player.getId()));
+        }
+        return players;
     }
 
     @Override
     public Action getAction(Long action_id, Long game_id) {
-        return null;
+        ActionRecord a = dsl.selectFrom(ACTION).where(ACTION.ACTION_ID.eq(ULong.valueOf(action_id))).and(ACTION.GAME_ID.eq(ULong.valueOf(game_id))).fetchOneInto(ActionRecord.class);
+        assert a != null;
+        return gameMapper.toDomain(a);
     }
 }

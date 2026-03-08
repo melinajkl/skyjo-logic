@@ -4,22 +4,29 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import infrastructure.jooq.generated.tables.records.ActionRecord;
+import infrastructure.jooq.generated.tables.records.GameRecord;
+import infrastructure.jooq.generated.tables.records.PlayerRecord;
 import skyjo.domain.*;
+import skyjo.infrastructure.persistence.repository.GameJooqRepository;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 public class GameMapper implements IGameMapper {
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final GameJooqRepository repo = new GameJooqRepository();
 
     @Override
     public Action toDomain(ActionRecord a) {
         ActionType actionType = ActionType.valueOf(a.getActionType());
         PlayField before = toDomain(a.getFieldBefore());
         PlayField after = toDomain(a.getFieldAfter());
-        boolean drawPile = a.getDrawPile();
-        boolean newCardInField = a.getNewCard();
-        Card card = toDomain(a.getCard());
-        Player player = a.getPlayerId();
+        boolean drawPile = a.getDrawpile() != 0;
+        boolean newCardInField = a.getNewcardinfield() != 0;
+        Card card = toDomainCard(a.getCard());
+        Player player = repo.getPlayer(a.getPlayerId().longValue());
         boolean lastMove = after.countRevealedCard() == 12;
-        Game game = a.getGameId();
+        Game game = repo.getGameById(a.getGameId().longValue());
         return new Action(actionType, before, after, drawPile, newCardInField, card, player, lastMove, game);
     }
 
@@ -35,6 +42,28 @@ public class GameMapper implements IGameMapper {
 
     @Override
     public Card toDomainCard(String cardJson) {
-        return null;
+        try {
+            return objectMapper.readValue(cardJson, Card.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Could not deserialize PlayField JSON", e);
+        }
+
+    }
+
+    @Override
+    public Player toDomainPlayer(PlayerRecord p) {
+        PlayField pf = toDomain(new String(p.getPlayfield(), StandardCharsets.UTF_8));
+        boolean lastMove = pf.countRevealedCard() == 12;
+
+        return new Player(p.getId().longValue(), pf, p.getPoints().longValue(), lastMove);
+    }
+
+    @Override
+    public Game toDomainGame(GameRecord g) {
+        try {
+            return objectMapper.readValue(new String(g.getSnapshot(), StandardCharsets.UTF_8),  Game.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Could not deserialize PlayField JSON", e);
+        }
     }
 }

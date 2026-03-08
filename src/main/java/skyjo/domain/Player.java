@@ -18,6 +18,13 @@ public class Player {
         this.lastMoveDone = false;
     }
 
+    public Player (Long id, PlayField playField, Long points, boolean lastMoveDone){
+        this.id = id;
+        this.playField = playField;
+        this.points = points;
+        this.lastMoveDone = lastMoveDone;
+    }
+
     public void addPoints (Long points){
         this.points = this.points + points;
     }
