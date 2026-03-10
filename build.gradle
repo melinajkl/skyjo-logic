@@ -37,6 +37,7 @@ dependencies {
     // Optional
     implementation 'io.quarkus:quarkus-hibernate-orm'
     implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'org.flywaydb:flyway-mysql'
 
     // jOOQ runtime integration for Quarkus
     implementation 'io.quarkiverse.jooq:quarkus-jooq:2.1.0'

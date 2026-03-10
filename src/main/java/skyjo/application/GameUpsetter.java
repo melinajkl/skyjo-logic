@@ -42,7 +42,7 @@ public class GameUpsetter {
         // sets up game that can be used to insert new game into database
         Game game = new Game(player, drawPile, discardPile);
         game.setPhase(Status.SETUP);
-
+        game.setCurrentPlayer(player.get(0));
         // insert Game into database and return game with correct id
         Game savedGame = repo.insertNewGame(game);
         return savedGame;

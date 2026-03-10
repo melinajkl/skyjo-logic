@@ -9,4 +9,4 @@ COPY build/quarkus-app/quarkus/ /work/quarkus/
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "quarkus-run.jar"]
+CMD ["java", "-jar", "/work/quarkus-run.jar"]

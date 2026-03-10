@@ -60,4 +60,14 @@ public class Game {
         discardPile.setStack(new Stack<>());
         discardPile.layCard(topCard);
     }
+
+    public void setCurrentPlayer(Player player) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId().equals(player.getId())) {
+                this.currentPlayerIndex = i;
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Player is not part of this game.");
+    }
 }

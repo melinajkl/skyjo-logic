@@ -35,33 +35,57 @@ public class GameJooqRepository implements IGameRepository {
     @Override
     @Transactional
     public Game insertNewGame(Game game) throws JsonProcessingException {
-        // neue Spieler einfügen
+        // 1) insert or update all players
         int i = 0;
-        for(Player p : game.getPlayers()) {
+        for (Player p : game.getPlayers()) {
             insertNewPlayer(p, i);
             i++;
         }
 
-        // neues Game inserten
+        // 2) insert game without current_player_id
         GameRecord record = dsl.insertInto(GAME)
                 .set(GAME.NUMBER_OF_PLAYERS, UInteger.valueOf(game.getPlayers().size()))
-                .set(GAME.STATUS, game.getPhase().toString())
-                .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(game.getCurrentPlayer().getId()))
                 .set(GAME.ROUND, UInteger.valueOf(game.getRound()))
-                .returning(GAME.ID).fetchOne();
+                .returning(GAME.ID)
+                .fetchOne();
 
-        assert record != null;
-        Long game_id = record.getId().longValue();
-        game.setId(game_id);
-k
-        // Spieler aktuelles Game eintragen
+        if (record == null) {
+            throw new IllegalStateException("Game insert failed.");
+        }
+
+        Long gameId = record.getId().longValue();
+        game.setId(gameId);
+
+        // 3) link players to game
         for (Player p : game.getPlayers()) {
             enterGame(game, p);
         }
+
+        // 4) resolve current player from the actual players list
+        Player currentPlayer = game.getPlayers().get(0); // because constructor starts with index 0
+
+        // 5) verify player row really exists in DB
+        boolean currentPlayerExists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(PLAYER)
+                        .where(PLAYER.ID.eq(ULong.valueOf(currentPlayer.getId())))
+        );
+
+        if (!currentPlayerExists) {
+            throw new IllegalStateException(
+                    "Current player with ID " + currentPlayer.getId() + " does not exist in PLAYER table."
+            );
+        }
+
+        // 6) update current_player_id only after verification
+        dsl.update(GAME)
+                .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(currentPlayer.getId()))
+                .where(GAME.ID.eq(ULong.valueOf(gameId)))
+                .execute();
+
         updateGameSnapshot(game);
         return game;
     }
-
     // auth needs to send id before persistence to work out
     // only inserts player if it does not exist yet otherwise it updates the currentgameid
     @Override
@@ -101,13 +125,7 @@ k
         dsl.update(GAME).set(GAME.SNAPSHOT, mapper.writeValueAsBytes(game)).where(GAME.ID.eq(ULong.valueOf(game.getId()))).execute();
     }
 
-    @Override
-    public void setGameStatus(Game game) {
-        dsl.update(GAME)
-                .set(GAME.STATUS, game.getPhase().toString())
-                .where(GAME.ID.eq(ULong.valueOf(game.getId())))
-                .execute();
-    }
+
 
     @Override
     public void insertAction(Game game, Action action) throws JsonProcessingException {
