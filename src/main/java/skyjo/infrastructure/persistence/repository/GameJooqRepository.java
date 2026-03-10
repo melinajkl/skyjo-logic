@@ -2,6 +2,7 @@ package skyjo.infrastructure.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import infrastructure.jooq.generated.tables.records.ActionRecord;
+import infrastructure.jooq.generated.tables.records.PlayerRecord;
 import skyjo.domain.Action;
 import skyjo.domain.Player;
 import infrastructure.jooq.generated.tables.records.GameRecord;
@@ -14,9 +15,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import skyjo.domain.Game;
 import org.jooq.types.ULong;
+import skyjo.infrastructure.persistence.mapper.GameMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static infrastructure.jooq.generated.Tables.*;
 
@@ -24,47 +27,96 @@ import static infrastructure.jooq.generated.Tables.*;
 public class GameJooqRepository implements IGameRepository {
     @Inject
     DSLContext dsl;
+
+    @Inject
+    GameMapper gameMapper;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     @Transactional
     public Game insertNewGame(Game game) throws JsonProcessingException {
-        // neue Spieler einfügen
+        // 1) insert or update all players
         int i = 0;
-        for(Player p : game.getPlayers()) {
+        for (Player p : game.getPlayers()) {
             insertNewPlayer(p, i);
             i++;
         }
 
-        // neues Game inserten
+        // 2) insert game without current_player_id
         GameRecord record = dsl.insertInto(GAME)
                 .set(GAME.NUMBER_OF_PLAYERS, UInteger.valueOf(game.getPlayers().size()))
-                .set(GAME.STATUS, game.getPhase().toString())
-                .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(game.getCurrentPlayer().getId()))
                 .set(GAME.ROUND, UInteger.valueOf(game.getRound()))
-                .returning(GAME.ID).fetchOne();
+                .returning(GAME.ID)
+                .fetchOne();
 
-        assert record != null;
-        Long game_id = record.getId().longValue();
-        game.setId(game_id);
+        if (record == null) {
+            throw new IllegalStateException("Game insert failed.");
+        }
 
-        // Spieler aktuelles Game eintragen
+        Long gameId = record.getId().longValue();
+        game.setId(gameId);
+
+        // 3) link players to game
         for (Player p : game.getPlayers()) {
             enterGame(game, p);
         }
+
+        // 4) resolve current player from the actual players list
+        Player currentPlayer = game.getPlayers().get(0); // because constructor starts with index 0
+
+        // 5) verify player row really exists in DB
+        boolean currentPlayerExists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(PLAYER)
+                        .where(PLAYER.ID.eq(ULong.valueOf(currentPlayer.getId())))
+        );
+
+        if (!currentPlayerExists) {
+            throw new IllegalStateException(
+                    "Current player with ID " + currentPlayer.getId() + " does not exist in PLAYER table."
+            );
+        }
+
+        // 6) update current_player_id only after verification
+        dsl.update(GAME)
+                .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(currentPlayer.getId()))
+                .where(GAME.ID.eq(ULong.valueOf(gameId)))
+                .execute();
+
+        updateGameSnapshot(game);
         return game;
     }
-
+    // auth needs to send id before persistence to work out
+    // only inserts player if it does not exist yet otherwise it updates the currentgameid
     @Override
-    public void insertNewPlayer(Player player, int player_index) throws JsonProcessingException {
-         dsl.insertInto(PLAYER).set(PLAYER.ID, ULong.valueOf(player.getId()))
-                 .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
-                 .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(player_index))
-                 .set(PLAYER.IS_VERIFIED, (byte) 0) //false
-                 .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
-                 .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
-                 .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
-                 .execute();
+    public void insertNewPlayer(Player player, int playerIndex) throws JsonProcessingException {
+        boolean exists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(PLAYER)
+                        .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+        );
+
+        if (!exists) {
+            dsl.insertInto(PLAYER)
+                    .set(PLAYER.ID, ULong.valueOf(player.getId()))
+                    .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                    .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
+                    .set(PLAYER.IS_VERIFIED, (byte) 0)
+                    .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                    .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                    .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                    .execute();
+        } else {
+            dsl.update(PLAYER)
+                    .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                    .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
+                    .set(PLAYER.IS_VERIFIED, (byte) 0)
+                    .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                    .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                    .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                    .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+                    .execute();
+        }
     }
 
     @Override
@@ -73,13 +125,7 @@ public class GameJooqRepository implements IGameRepository {
         dsl.update(GAME).set(GAME.SNAPSHOT, mapper.writeValueAsBytes(game)).where(GAME.ID.eq(ULong.valueOf(game.getId()))).execute();
     }
 
-    @Override
-    public void setGameStatus(Game game) {
-        dsl.update(GAME)
-                .set(GAME.STATUS, game.getPhase().toString())
-                .where(GAME.ID.eq(ULong.valueOf(game.getId())))
-                .execute();
-    }
+
 
     @Override
     public void insertAction(Game game, Action action) throws JsonProcessingException {
@@ -126,7 +172,7 @@ public class GameJooqRepository implements IGameRepository {
         List<Action> actions = new ArrayList<>();
 
         for (ActionRecord record : records) {
-            Action action = mapToDomain(record); // deine Mapper-Methode
+            Action action = gameMapper.toDomain(record); // deine Mapper-Methode
             actions.add(action);
         }
 
@@ -135,21 +181,38 @@ public class GameJooqRepository implements IGameRepository {
 
     @Override
     public Game getGame(Long player_id) {
-        return null;
+        Long game_id = Objects.requireNonNull(dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOne(PLAYER.CURRENT_GAME_ID)).longValue();
+        return getGameById(game_id);
+    }
+
+    @Override
+    public Game getGameById(Long game_id) {
+        GameRecord g = dsl.selectFrom(GAME).where(GAME.ID.eq(ULong.valueOf(game_id))).fetchOneInto(GameRecord.class);
+        assert g != null;
+        return gameMapper.toDomainGame(g);
     }
 
     @Override
     public Player getPlayer(Long player_id) {
-        return null;
+        PlayerRecord p = dsl.selectFrom(PLAYER).where(PLAYER.ID.eq(ULong.valueOf(player_id))).fetchOneInto(PlayerRecord.class);
+        assert p != null;
+        return gameMapper.toDomainPlayer(p);
     }
 
     @Override
     public List<Player> getPlayers(Long game_id) {
-        return List.of();
+        Game g = getGameById(game_id);
+        List<Player> players = new ArrayList<>();
+        for (Player player : g.getPlayers()) {
+            players.add(getPlayer(player.getId()));
+        }
+        return players;
     }
 
     @Override
     public Action getAction(Long action_id, Long game_id) {
-        return null;
+        ActionRecord a = dsl.selectFrom(ACTION).where(ACTION.ACTION_ID.eq(ULong.valueOf(action_id))).and(ACTION.GAME_ID.eq(ULong.valueOf(game_id))).fetchOneInto(ActionRecord.class);
+        assert a != null;
+        return gameMapper.toDomain(a);
     }
 }
