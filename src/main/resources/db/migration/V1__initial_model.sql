@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS game (
                                     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,                                    number_of_players INT UNSIGNED NOT NULL,
                                     round INT UNSIGNED NOT NULL DEFAULT 1,
                                     snapshot LONGBLOB NULL,
+                                    status VARCHAR(128),
                                     current_player_id BIGINT UNSIGNED,
 
                                     PRIMARY KEY (id),

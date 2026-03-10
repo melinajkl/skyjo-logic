@@ -27,6 +27,8 @@ public class Game {
         this.drawPile = drawPile;
         this.discardPile = discardPile;
         this.round = 1;
+        this.moveCounter = 0;
+        this.phase = Status.SETUP;
     }
 
     public Player getCurrentPlayer(){
@@ -57,5 +59,15 @@ public class Game {
         drawPile.setStack(discardPile.getStack());
         discardPile.setStack(new Stack<>());
         discardPile.layCard(topCard);
+    }
+
+    public void setCurrentPlayer(Player player) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getId().equals(player.getId())) {
+                this.currentPlayerIndex = i;
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Player is not part of this game.");
     }
 }

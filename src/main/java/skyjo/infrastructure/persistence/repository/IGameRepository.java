@@ -12,7 +12,7 @@ public interface IGameRepository {
     // write in database
     public Game insertNewGame(Game game) throws JsonProcessingException;
     public void updateGameSnapshot(Game game) throws JsonProcessingException;
-    public void setGameStatus(Game game);
+    // public void setGameStatus(Game game);
     public void insertAction(Game game, Action action) throws JsonProcessingException;
     public void enterGame(Game game, Player player);
     public void setVerified(Player player);

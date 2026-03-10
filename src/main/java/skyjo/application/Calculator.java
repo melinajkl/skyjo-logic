@@ -1,8 +1,8 @@
 package skyjo.application;
 
-import java.skyjo.domain.Game;
-import java.skyjo.domain.PlayField;
-import java.skyjo.domain.Player;
+import skyjo.domain.Game;
+import skyjo.domain.PlayField;
+import skyjo.domain.Player;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
