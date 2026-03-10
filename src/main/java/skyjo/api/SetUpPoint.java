@@ -8,6 +8,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
+import skyjo.api.dto.GameResponse;
+import skyjo.api.mapper.GameResponseMapper;
 import skyjo.application.GameUpsetter;
 import skyjo.domain.Game;
 
@@ -20,12 +22,13 @@ public class SetUpPoint {
 
     @Inject
     GameUpsetter gameUpsetter;
+
     private static final Logger LOG = Logger.getLogger(SetUpPoint.class);
 
-
     @POST
-    public Game setUpGame(List<Long> ids) throws JsonProcessingException {
+    public GameResponse setUpGame(List<Long> ids) throws JsonProcessingException {
         LOG.info("SetUpGame called");
-        return gameUpsetter.setUpGame(ids);
+        Game game = gameUpsetter.setUpGame(ids);
+        return GameResponseMapper.toResponse(game);
     }
 }
