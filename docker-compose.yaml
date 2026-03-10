@@ -18,7 +18,7 @@ services:
 
   app:
     build:
-      context: /Users/melinaklein/workspace/skyjo-logic
+      context: .
       dockerfile: Dockerfile
     environment:
       DB_HOST: db
@@ -27,7 +27,7 @@ services:
       DB_USER: app
       DB_PASS: app_pw
     ports:
-      - "8000:8080"
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy

@@ -27,6 +27,8 @@ public class Game {
         this.drawPile = drawPile;
         this.discardPile = discardPile;
         this.round = 1;
+        this.moveCounter = 0;
+        this.phase = Status.SETUP;
     }
 
     public Player getCurrentPlayer(){

@@ -48,30 +48,51 @@ public class GameJooqRepository implements IGameRepository {
                 .set(GAME.STATUS, game.getPhase().toString())
                 .set(GAME.CURRENT_PLAYER_ID, ULong.valueOf(game.getCurrentPlayer().getId()))
                 .set(GAME.ROUND, UInteger.valueOf(game.getRound()))
-                .set(GAME.SNAPSHOT,  mapper.writeValueAsBytes(game))
                 .returning(GAME.ID).fetchOne();
 
         assert record != null;
         Long game_id = record.getId().longValue();
         game.setId(game_id);
-
+k
         // Spieler aktuelles Game eintragen
         for (Player p : game.getPlayers()) {
             enterGame(game, p);
         }
+        updateGameSnapshot(game);
         return game;
     }
 
+    // auth needs to send id before persistence to work out
+    // only inserts player if it does not exist yet otherwise it updates the currentgameid
     @Override
-    public void insertNewPlayer(Player player, int player_index) throws JsonProcessingException {
-         dsl.insertInto(PLAYER).set(PLAYER.ID, ULong.valueOf(player.getId()))
-                 .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
-                 .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(player_index))
-                 .set(PLAYER.IS_VERIFIED, (byte) 0) //false
-                 .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
-                 .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
-                 .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
-                 .execute();
+    public void insertNewPlayer(Player player, int playerIndex) throws JsonProcessingException {
+        boolean exists = dsl.fetchExists(
+                dsl.selectOne()
+                        .from(PLAYER)
+                        .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+        );
+
+        if (!exists) {
+            dsl.insertInto(PLAYER)
+                    .set(PLAYER.ID, ULong.valueOf(player.getId()))
+                    .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                    .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
+                    .set(PLAYER.IS_VERIFIED, (byte) 0)
+                    .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                    .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                    .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                    .execute();
+        } else {
+            dsl.update(PLAYER)
+                    .set(PLAYER.POINTS, ULong.valueOf(player.getPoints()))
+                    .set(PLAYER.PLAYER_INDEX, UInteger.valueOf(playerIndex))
+                    .set(PLAYER.IS_VERIFIED, (byte) 0)
+                    .set(PLAYER.PLAYFIELD, mapper.writeValueAsBytes(player.getPlayField()))
+                    .set(PLAYER.NUMBER_OF_MOVES, ULong.valueOf(0))
+                    .set(PLAYER.LAST_MOVE, (byte) (player.getLastMoveDone() ? 1 : 0))
+                    .where(PLAYER.ID.eq(ULong.valueOf(player.getId())))
+                    .execute();
+        }
     }
 
     @Override
