@@ -11,10 +11,9 @@ public class Action {
     private boolean newCardInField;
     private Card card;
     private Player player;
-    private boolean lastMove;
     private Game game;
 
-    public Action (ActionType actionType, PlayField playFieldBefore, PlayField playFieldAfter, boolean drawPile, boolean newCardInField, Card card, Player player, boolean lastMove, Game game){
+    public Action (ActionType actionType, PlayField playFieldBefore, PlayField playFieldAfter, boolean drawPile, boolean newCardInField, Card card, Player player, Game game){
         this.actionType = actionType;
         this.playFieldBefore = playFieldBefore;
         this.playFieldAfter = playFieldAfter;
@@ -22,7 +21,6 @@ public class Action {
         this.newCardInField = newCardInField;
         this.card = card;
         this.player = player;
-        this.lastMove = lastMove;
         this.game = game;
     }
 }
