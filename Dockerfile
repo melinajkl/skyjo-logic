@@ -1,3 +1,4 @@
+# Production mode
 FROM eclipse-temurin:21-jre
 
 WORKDIR /work/

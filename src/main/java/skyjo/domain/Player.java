@@ -1,9 +1,11 @@
 package skyjo.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@NoArgsConstructor(force = true)
 public class Player {
     private final Long id;
     @Setter

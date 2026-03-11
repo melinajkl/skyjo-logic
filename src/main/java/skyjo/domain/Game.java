@@ -1,6 +1,7 @@
 package skyjo.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Collections;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Stack;
 
 @Getter
+@NoArgsConstructor(force = true)
 public class Game {
     @Setter
     private Long id;

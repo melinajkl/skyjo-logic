@@ -40,7 +40,7 @@ public final class GameResponseMapper {
 
     public static PlayFieldResponse toResponse(PlayField playField) {
         return new PlayFieldResponse(
-                playField.getCards().stream()
+                playField.getPlayField().stream()
                         .map(GameResponseMapper::toResponse)
                         .toList()
         );

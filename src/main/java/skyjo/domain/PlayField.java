@@ -1,15 +1,17 @@
 package skyjo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Getter
+@NoArgsConstructor(force = true)
 public class PlayField {
     private List<Card> playField;
-
     public PlayField (List<Card> playField){
         this.playField = playField;
     }
@@ -32,6 +34,7 @@ public class PlayField {
         return count;
     }
 
+    @JsonIgnore
     public int countRevealedCard(){
         int count = 0;
         for (Card card : playField){
