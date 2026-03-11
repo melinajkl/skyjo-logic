@@ -11,7 +11,7 @@ import skyjo.api.mapper.GameResponseMapper;
 import skyjo.domain.Game;
 import skyjo.infrastructure.persistence.repository.GameJooqRepository;
 
-@Path("/join-{id}")
+@Path("/getGame-{id}")
 public class GetGame {
     @Inject
     GameJooqRepository repo;
