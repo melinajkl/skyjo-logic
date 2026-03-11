@@ -6,6 +6,7 @@ services:
       MARIADB_USER: app
       MARIADB_PASSWORD: app_pw
       MARIADB_ROOT_PASSWORD: root_pw
+
     ports:
       - "3306:3306" # wird benötigt um in der IDE auf die Datenbank zugreifen zu können
     volumes:
@@ -26,6 +27,8 @@ services:
       DB_NAME: skyjo
       DB_USER: app
       DB_PASS: app_pw
+      # Add this to ensure the Quarkus runtime also knows where the DB is
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mariadb://db:3306/skyjo
     ports:
       - "8080:8080"
     depends_on:

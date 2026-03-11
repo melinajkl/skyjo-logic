@@ -31,16 +31,6 @@ public class GameMapper implements IGameMapper {
     }
 
     @Override
-    public PlayField toDomain(String playfieldJson) {
-        try {
-            return objectMapper.readValue(playfieldJson, PlayField.class);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not deserialize PlayField JSON", e);
-        }
-
-    }
-
-    @Override
     public Card toDomainCard(String cardJson) {
         try {
             return objectMapper.readValue(cardJson, Card.class);
@@ -57,13 +47,31 @@ public class GameMapper implements IGameMapper {
 
         return new Player(p.getId().longValue(), pf, p.getPoints().longValue(), lastMove);
     }
-
+    @Override
+    public PlayField toDomain(String playfieldJson) {
+        if (playfieldJson == null || playfieldJson.isBlank()) {
+            return null; // Or return new PlayField() if you prefer a default
+        }
+        try {
+            return objectMapper.readValue(playfieldJson, PlayField.class);
+        } catch (JsonProcessingException e) {
+            // Log the actual content to see WHAT failed
+            System.err.println("Failed JSON Content: " + playfieldJson);
+            throw new IllegalArgumentException("Could not deserialize PlayField JSON", e);
+        }
+    }
     @Override
     public Game toDomainGame(GameRecord g) {
+        byte[] snapshot = g.getSnapshot();
+        if (snapshot == null || snapshot.length == 0) {
+            throw new IllegalArgumentException("Game snapshot is empty for ID: " + g.getId());
+        }
+
         try {
-            return objectMapper.readValue(new String(g.getSnapshot(), StandardCharsets.UTF_8),  Game.class);
+            String json = new String(snapshot, StandardCharsets.UTF_8);
+            return objectMapper.readValue(json, Game.class);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not deserialize PlayField JSON", e);
+            throw new IllegalArgumentException("Could not deserialize Game JSON", e);
         }
     }
 }

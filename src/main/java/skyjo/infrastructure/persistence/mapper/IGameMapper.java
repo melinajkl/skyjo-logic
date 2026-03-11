@@ -11,4 +11,6 @@ public interface IGameMapper {
     public Card toDomainCard(String cardJson);
     public Player toDomainPlayer(PlayerRecord p);
     public Game toDomainGame(GameRecord g);
+
+
 }
