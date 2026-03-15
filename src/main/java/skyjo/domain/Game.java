@@ -3,6 +3,7 @@ package skyjo.domain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import skyjo.api.dto.ActionRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,5 +72,33 @@ public class Game {
             }
         }
         throw new IllegalArgumentException("Player is not part of this game.");
+    }
+
+    public Action createAction(ActionRequest request, Player player) {
+        PlayField before = player.getPlayField();
+
+        // logic to determine 'after' and 'card'
+        Card card = null;
+        if (request.isFromDrawPile()) {
+            card = drawFromDrawPile();
+        } else {
+            card = drawFromDiscardPile();
+        }
+        int x = request.getCardIndex() / 4;
+        int y = request.getCardIndex() % 4;
+        assert discardPile != null;
+        discardPile.layCard(player.getPlayField().switchCard(card, x, y));
+        PlayField after = player.getPlayField();
+
+        return new Action(
+                ActionType.valueOf(String.valueOf(request.getActionType())),
+                before,
+                after,
+                request.isFromDrawPile(),
+                request.isKeepCard(),
+                card,
+                player,
+                this
+        );
     }
 }

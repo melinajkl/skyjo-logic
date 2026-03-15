@@ -25,9 +25,8 @@ public class GameMapper implements IGameMapper {
         boolean newCardInField = a.getNewcardinfield() != 0;
         Card card = toDomainCard(a.getCard());
         Player player = repo.getPlayer(a.getPlayerId().longValue());
-        boolean lastMove = after.countRevealedCard() == 12;
         Game game = repo.getGameById(a.getGameId().longValue());
-        return new Action(actionType, before, after, drawPile, newCardInField, card, player, lastMove, game);
+        return new Action(actionType, before, after, drawPile, newCardInField, card, player, game);
     }
 
     @Override

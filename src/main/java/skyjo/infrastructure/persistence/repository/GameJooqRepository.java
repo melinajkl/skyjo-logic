@@ -188,7 +188,7 @@ public class GameJooqRepository implements IGameRepository {
     @Override
     public Game getGameById(Long game_id) {
         GameRecord g = dsl.selectFrom(GAME).where(GAME.ID.eq(ULong.valueOf(game_id))).fetchOneInto(GameRecord.class);
-        assert g != null;
+        if (g == null) return null;
         return gameMapper.toDomainGame(g);
     }
 
