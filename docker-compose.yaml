@@ -8,7 +8,7 @@ services:
       MARIADB_ROOT_PASSWORD: root_pw
 
     ports:
-      - "3306:3306" # wird benötigt um in der IDE auf die Datenbank zugreifen zu können
+      - "3307:3306" # wird benötigt um in der IDE auf die Datenbank zugreifen zu können
     volumes:
       - mariadb_data:/var/lib/mysql
     healthcheck:
